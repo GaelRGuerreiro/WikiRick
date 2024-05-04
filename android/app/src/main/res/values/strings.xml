@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">WikiRick</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="personajes" />
+    <string name="perfil" />
+    <string name="episodios" />
 </resources>
