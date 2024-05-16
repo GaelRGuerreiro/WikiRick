@@ -10,7 +10,7 @@
     <fragment
         android:id="@+id/Personajes"
         android:label="Personajes"
-        android:name="com.example.wikirick.PersonajesFragment"
+        android:name="com.example.wikirick.Personajes.PersonajesFragment"
         tools:layout="@layout/personajes_fragment">
         <argument
             android:name="text_id"
