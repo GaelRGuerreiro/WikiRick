@@ -30,7 +30,7 @@
     <fragment
         android:label="Episodios"
         android:id="@+id/Episodios"
-        android:name="com.example.wikirick.EpisodiosFragment"
+        android:name="com.example.wikirick.Episodios.EpisodiosFragment"
         tools:layout="@layout/episodios_fragment">
         <argument
             android:name="text_id"

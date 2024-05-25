@@ -1,4 +1,4 @@
-package com.example.wikirick.Personajes;
+package com.example.wikirick.Episodios;
 
 import static android.view.View.VISIBLE;
 
@@ -36,7 +36,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonajesFragment extends Fragment {
+public class EpisodiosFragment extends Fragment {
     private RecyclerView recyclerView;
 
     private Activity activity;
@@ -58,7 +58,7 @@ public class PersonajesFragment extends Fragment {
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.personajes_fragment, container, false);
+        View layout = inflater.inflate(R.layout.episodios_fragment, container, false);
 
 
         nextButton = layout.findViewById(R.id.nextButton);
@@ -93,9 +93,9 @@ public class PersonajesFragment extends Fragment {
             }
         });
 
-        recyclerView = layout.findViewById(R.id.personajes_recycler); // Obtener una referencia al RecyclerView desde el diseño
+        recyclerView = layout.findViewById(R.id.episodios_recycler); // Obtener una referencia al RecyclerView desde el diseño
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        sendCharacterRequest("https://rickandmortyapi.com/api/character");
+        sendCharacterRequest("https://rickandmortyapi.com/api/episode");
 
         return layout;
     }
@@ -118,7 +118,7 @@ public class PersonajesFragment extends Fragment {
 
 
                         // Llamar al método parseJson para parsear la respuesta JSON
-                        List<PersonajesData> personajeDataArray = null;
+                        List<EpisodiosData> personajeDataArray = null;
                         personajeDataArray = parseJson(response);
 
 
@@ -126,9 +126,9 @@ public class PersonajesFragment extends Fragment {
                         if (personajeDataArray != null) {
 
                             // Crear un adaptador con los datos parseados y configurar el RecyclerView
-                            PersonajeViewAdpter adapter = new PersonajeViewAdpter(personajeDataArray, activity);
+                            EpisodiosViewAdapter adapter = new EpisodiosViewAdapter(personajeDataArray, activity);
                             recyclerView.setAdapter(adapter);
-                            recyclerView.setLayoutManager(new GridLayoutManager(activity,2));
+                            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
                             ajusteVisibilidadBotones();
 
@@ -157,7 +157,7 @@ public class PersonajesFragment extends Fragment {
     public void sendSearchRequest(String search){
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
-                "https://rickandmortyapi.com/api/character/?name="+search,
+                "https://rickandmortyapi.com/api/episode/?name="+search,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -166,18 +166,17 @@ public class PersonajesFragment extends Fragment {
 
 
                         // Llamar al método parseJson para parsear la respuesta JSON
-                        List<PersonajesData> personajeDataArray = null;
-                        personajeDataArray = parseJson(response);
+                        List<EpisodiosData> episodioDataArray = null;
+                        episodioDataArray = parseJson(response);
 
 
 
-                        if (personajeDataArray != null) {
+                        if (episodioDataArray != null) {
 
                             // Crear un adaptador con los datos parseados y configurar el RecyclerView
-                            PersonajeViewAdpter adapter = new PersonajeViewAdpter(personajeDataArray, activity);
+                           EpisodiosViewAdapter adapter = new EpisodiosViewAdapter(episodioDataArray, activity);
                             recyclerView.setAdapter(adapter);
-                            recyclerView.setLayoutManager(new GridLayoutManager(activity,2));
-
+                            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
                             ajusteVisibilidadBotones();
 
                         } else {
@@ -219,7 +218,7 @@ public class PersonajesFragment extends Fragment {
     }
 
 
-    private List<PersonajesData> parseJson(JSONObject response)  {
+    private List<EpisodiosData> parseJson(JSONObject response)  {
         try {
             next = response.getJSONObject("info").getString("next");
 
@@ -248,19 +247,15 @@ public class PersonajesFragment extends Fragment {
         try {
             JSONArray results = response.getJSONArray("results");
 
-            List<PersonajesData> allCharacters = new ArrayList<>();
+            List<EpisodiosData> allCharacters = new ArrayList<>();
 
             for (int i = 0; i < results.length(); i++) {
                 JSONObject character = results.getJSONObject(i);
 
                 String name = character.getString("name");
-                String imageUrl = character.getString("image");
-                String gender = character.getString("gender");
-                String status = character.getString("status");
-                String originName = character.getJSONObject("origin").getString("name");
-                String species = character.getString("species");
-
-                PersonajesData data = new PersonajesData(name, imageUrl, next, prev, gender, status, originName, species);
+                String airDate = character.getString("air_date");
+                String episode= character.getString("episode");
+                EpisodiosData data = new EpisodiosData(next, prev, name,airDate,episode);
                 allCharacters.add(data);
             }
 
