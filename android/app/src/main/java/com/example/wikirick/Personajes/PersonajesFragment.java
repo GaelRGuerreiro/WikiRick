@@ -252,7 +252,7 @@ public class PersonajesFragment extends Fragment {
 
             for (int i = 0; i < results.length(); i++) {
                 JSONObject character = results.getJSONObject(i);
-
+                String id = character.getString("id");
                 String name = character.getString("name");
                 String imageUrl = character.getString("image");
                 String gender = character.getString("gender");
@@ -260,7 +260,7 @@ public class PersonajesFragment extends Fragment {
                 String originName = character.getJSONObject("origin").getString("name");
                 String species = character.getString("species");
 
-                PersonajesData data = new PersonajesData(name, imageUrl, gender, status, originName, species,next, prev);
+                PersonajesData data = new PersonajesData(id,name, imageUrl,next, prev,gender, status, originName, species);
                 allCharacters.add(data);
             }
 

@@ -1,19 +1,33 @@
 package com.example.wikirick.Personajes;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.wikirick.R;
 import com.example.wikirick.Util;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class PersonajesDetail extends AppCompatActivity  {
@@ -26,6 +40,9 @@ public class PersonajesDetail extends AppCompatActivity  {
     private ImageButton fav;
     private ImageView imagen;
     private boolean favoriteado=true;
+    private RequestQueue queue;
+    static String host = "http://10.0.2.2:8000/";
+
 
 
     @Override
@@ -33,9 +50,11 @@ public class PersonajesDetail extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personajedetail);
 
+        queue = Volley.newRequestQueue(this);
 
 
         Intent intent = getIntent();
+        String Id = intent.getStringExtra("id");
         String Nombre = intent.getStringExtra("nombre");
         String Origen = intent.getStringExtra("origen");
         String Estado = intent.getStringExtra("estado");
@@ -83,22 +102,128 @@ public class PersonajesDetail extends AppCompatActivity  {
 
 
 
-        fav.setOnClickListener(new View.OnClickListener(){
-
+        fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(favoriteado){
-                    favoriteado=false;
+                if (favoriteado) {
+
+                    favoriteado = false;
                     fav.setColorFilter((ContextCompat.getColor(getApplicationContext(), R.color.yellow)));
-                }else{
-                    favoriteado=true;
+                    markAsFavorite(Id, Nombre, imageUrl);
+                } else {
+                    favoriteado = true;
                     fav.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.grey));
+                    unmarkAsFavorite(Id);
                 }
             }
         });
-
     }
 
+
+    private void markAsFavorite(String characterId, String characterName, String characterImageUrl) {
+        SharedPreferences preferences = getSharedPreferences("SESSIONS_APP_PREFS", MODE_PRIVATE);
+        String sessionToken = preferences.getString("VALID_TOKEN", null);
+
+        if (sessionToken == null) {
+            Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JSONObject requestBody = new JSONObject();
+        try {
+            requestBody.put("character_image_url", characterImageUrl);
+            requestBody.put("character_name", characterName);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.PUT,
+                host + "characters/" + characterId + "/favorite",
+                requestBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(PersonajesDetail.this, "Personaje marcado como favorito", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Toast.makeText(PersonajesDetail.this, "Error de red", Toast.LENGTH_SHORT).show();
+                        } else {
+                            int serverCode = error.networkResponse.statusCode;
+                            if (serverCode == 401) {
+                                Toast.makeText(PersonajesDetail.this, "No autenticado", Toast.LENGTH_SHORT).show();
+                            } else if (serverCode == 404) {
+                                Toast.makeText(PersonajesDetail.this, "Personaje no encontrado", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(PersonajesDetail.this, "Error: " + serverCode, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Session-Token", sessionToken);
+                return headers;
+            }
+        };
+
+        queue.add(request);
+    }
+
+    private void unmarkAsFavorite(String characterId) {
+        SharedPreferences preferences = getSharedPreferences("SESSIONS_APP_PREFS", MODE_PRIVATE);
+        String sessionToken = preferences.getString("VALID_TOKEN", null);
+
+        if (sessionToken == null) {
+            Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.DELETE,
+                host + "characters/" + characterId + "/favorite",
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(PersonajesDetail.this, "Personaje desmarcado como favorito", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Toast.makeText(PersonajesDetail.this, "Error de red", Toast.LENGTH_SHORT).show();
+                        } else {
+                            int serverCode = error.networkResponse.statusCode;
+                            if (serverCode == 401) {
+                                Toast.makeText(PersonajesDetail.this, "No autenticado", Toast.LENGTH_SHORT).show();
+                            } else if (serverCode == 404) {
+                                Toast.makeText(PersonajesDetail.this, "Personaje no encontrado", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(PersonajesDetail.this, "Error: " + serverCode, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Session-Token", sessionToken);
+                return headers;
+            }
+        };
+
+        queue.add(request);
+    }
 }
 
 

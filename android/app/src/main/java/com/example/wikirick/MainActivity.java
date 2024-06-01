@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.wikirick.Episodios.EpisodiosFragment;
+import com.example.wikirick.Perfil.PerfilFragment;
 import com.example.wikirick.Personajes.PersonajesFragment;
 import com.example.wikirick.databinding.ActivityMainBinding;
 

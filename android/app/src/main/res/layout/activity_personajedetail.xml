@@ -22,22 +22,41 @@
         app:layout_constraintTop_toBottomOf="@+id/cardImagen" />
 
     <TextView
+        android:id="@+id/textViewGenero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Genero:"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/genero"
+        app:layout_constraintStart_toStartOf="@+id/genero" />
+    <TextView
         android:id="@+id/genero"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nombrePersonaje"
         android:layout_centerHorizontal="true"
+        android:layout_marginLeft="60dp"
         android:layout_marginTop="50dp"
         android:text="Pepinillo"
-        android:textStyle=""
-        android:layout_marginLeft="60dp"
         android:textAlignment="center"
         android:textSize="30sp"
+        android:textStyle=""
 
         app:layout_constraintEnd_toStartOf="@+id/cardImagen"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nombrePersonaje" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Genero:"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/estado"
+        app:layout_constraintStart_toStartOf="@+id/textViewGenero" />
     <TextView
         android:id="@+id/estado"
         android:layout_width="wrap_content"
@@ -52,31 +71,53 @@
         app:layout_constraintStart_toEndOf="@+id/genero"
         app:layout_constraintTop_toBottomOf="@+id/genero" />
 
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Origen:"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/origen"
+        app:layout_constraintStart_toStartOf="@+id/textViewGenero" />
+
     <TextView
         android:id="@+id/origen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/estado"
         android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="50dp"
+        android:layout_marginRight="20dp"
         android:text="Tierra"
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/estado" />
 
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Especie:"
+        android:textStyle="bold|italic"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/especie"
+        app:layout_constraintStart_toStartOf="@+id/especie" />
     <TextView
         android:id="@+id/especie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/origen"
         android:layout_centerHorizontal="true"
+        android:layout_marginRight="60dp"
         android:text="Pepinillo"
         android:textAlignment="center"
         android:textSize="30sp"
-        android:layout_marginRight="60dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cardImagen"
         app:layout_constraintTop_toTopOf="@+id/genero" />

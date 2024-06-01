@@ -3,9 +3,23 @@ package com.example.wikirick.Personajes;
 public class PersonajesData {
 
 
+
+
+
+    private String id;
     private String nombrePersonaje;
     private String imageUrl;
     private String next;
+    private String prev;
+    private String genero;
+
+    private String estado;
+    private String origen;
+    private String especie;
+
+
+
+
 
     public String getNext() {
         return next;
@@ -22,15 +36,13 @@ public class PersonajesData {
     public void setPrev(String prev) {
         this.prev = prev;
     }
+    public String getId() {
+        return id;
+    }
 
-    private String prev;
-    private String genero;
-
-    private String estado;
-    private String origen;
-    private String especie;
-    //nombre,genero,estado,origen,especie,episodios.
-
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getNombrePersonaje() {
         return nombrePersonaje;
@@ -80,14 +92,19 @@ public class PersonajesData {
         this.especie = especie;
     }
 
-    public PersonajesData(String nombrePersonaje, String imageUrl, String genero, String estado, String origen, String especie,String next,String prev) {
+
+
+
+
+    public PersonajesData(String id, String nombrePersonaje, String imageUrl, String next, String prev, String genero, String estado, String origen, String especie) {
+        this.id = id;
         this.nombrePersonaje = nombrePersonaje;
         this.imageUrl = imageUrl;
+        this.next = next;
+        this.prev = prev;
         this.genero = genero;
         this.estado = estado;
         this.origen = origen;
         this.especie = especie;
-        this.next=next;
-        this.prev=prev;
     }
 }

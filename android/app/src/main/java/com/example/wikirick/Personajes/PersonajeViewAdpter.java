@@ -46,6 +46,7 @@ public class PersonajeViewAdpter extends RecyclerView.Adapter<PersonajesViewHold
             public void onClick(View v) {
                 Context context = v.getContext();
                 Intent intent = new Intent(context, PersonajesDetail.class);
+                intent.putExtra("id",dataForThisCell.getId());
                 intent.putExtra("nombre",dataForThisCell.getNombrePersonaje());
                 intent.putExtra("imagen",dataForThisCell.getImageUrl());
                 intent.putExtra("genero",dataForThisCell.getGenero());
