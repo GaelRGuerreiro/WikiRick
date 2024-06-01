@@ -1,6 +1,8 @@
 package com.example.wikirick.Episodios;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,18 @@ public class EpisodiosViewAdapter extends RecyclerView.Adapter<EpisodiosViewHold
     public void onBindViewHolder(@NonNull EpisodiosViewHolder holder, int position) {
         EpisodiosData dataForThisCell = episodios.get(position);
         holder.bind(dataForThisCell);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = v.getContext();
+                Intent intent = new Intent(context, EpisodiosDetail.class);
+                intent.putExtra("nombre",dataForThisCell.getName());
+                intent.putExtra("fecha",dataForThisCell.getDate());
+                intent.putExtra("episodio",dataForThisCell.getEpisode());
+
+                context.startActivity(intent);
+            }
+        });
     }
 
 

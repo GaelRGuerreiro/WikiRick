@@ -1,6 +1,8 @@
 package com.example.wikirick.Personajes;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +40,23 @@ public class PersonajeViewAdpter extends RecyclerView.Adapter<PersonajesViewHold
     public void onBindViewHolder(@NonNull PersonajesViewHolder holder, int position) {
         PersonajesData dataForThisCell = personajes.get(position);
         holder.bind(dataForThisCell);
-    }
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = v.getContext();
+                Intent intent = new Intent(context, PersonajesDetail.class);
+                intent.putExtra("nombre",dataForThisCell.getNombrePersonaje());
+                intent.putExtra("imagen",dataForThisCell.getImageUrl());
+                intent.putExtra("genero",dataForThisCell.getGenero());
+                intent.putExtra("estado",dataForThisCell.getEstado());
+                intent.putExtra("origen",dataForThisCell.getOrigen());
+                intent.putExtra("especie",dataForThisCell.getEspecie());
+
+                context.startActivity(intent);
+            }
+        });
+    }
 
 
     @Override

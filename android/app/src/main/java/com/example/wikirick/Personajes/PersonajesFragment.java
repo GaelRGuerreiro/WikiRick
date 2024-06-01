@@ -260,7 +260,7 @@ public class PersonajesFragment extends Fragment {
                 String originName = character.getJSONObject("origin").getString("name");
                 String species = character.getString("species");
 
-                PersonajesData data = new PersonajesData(name, imageUrl, next, prev, gender, status, originName, species);
+                PersonajesData data = new PersonajesData(name, imageUrl, gender, status, originName, species,next, prev);
                 allCharacters.add(data);
             }
 
