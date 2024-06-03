@@ -310,6 +310,11 @@ public class PersonajesDetail extends AppCompatActivity  {
 
         queue.add(request);
     }
+
+
+
+
+
 }
 
 

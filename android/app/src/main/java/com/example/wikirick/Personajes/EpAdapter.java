@@ -17,7 +17,9 @@ public class EpAdapter extends RecyclerView.Adapter<EpViewHolder> {
     private ArrayList<String> episodes;
 
     public EpAdapter(ArrayList<String> episodes) {
+
         this.episodes = episodes;
+
     }
 
     @NonNull
