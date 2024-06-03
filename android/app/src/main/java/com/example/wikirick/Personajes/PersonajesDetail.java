@@ -13,6 +13,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -26,7 +29,10 @@ import com.example.wikirick.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -39,6 +45,7 @@ public class PersonajesDetail extends AppCompatActivity  {
     private TextView especie;
     private ImageButton fav;
     private ImageView imagen;
+    private RecyclerView episodios;
     private boolean favoriteado=true;
     private RequestQueue queue;
     static String host = "http://10.0.2.2:8000/";
@@ -61,6 +68,8 @@ public class PersonajesDetail extends AppCompatActivity  {
         String Especie = intent.getStringExtra("especie");
         String Genero = intent.getStringExtra("genero");
         String imageUrl = intent.getStringExtra("imagen");
+        ArrayList<String> Episodios= intent.getStringArrayListExtra("episodes");
+
 
 
 
@@ -71,15 +80,22 @@ public class PersonajesDetail extends AppCompatActivity  {
         especie=findViewById(R.id.especie);
         fav=findViewById(R.id.fav);
         imagen=findViewById(R.id.imagen);
+        episodios=findViewById(R.id.epRecyclerView);
 
 
+
+
+
+        EpAdapter adapter = new EpAdapter(Episodios);
+        episodios.setAdapter(adapter);
+        episodios.setLayoutManager( new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
 
 
         nombrePersonaje.setText(Nombre);
         genero.setText(Genero);
 
-                switch(Estado){
+        switch(Estado){
             case "Alive":
                 estado.setText(Estado);
                 estado.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
@@ -99,6 +115,8 @@ public class PersonajesDetail extends AppCompatActivity  {
 
 
 
+        knowFavorite(Id);
+
 
 
 
@@ -106,18 +124,80 @@ public class PersonajesDetail extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
                 if (favoriteado) {
-
-                    favoriteado = false;
-                    fav.setColorFilter((ContextCompat.getColor(getApplicationContext(), R.color.yellow)));
-                    markAsFavorite(Id, Nombre, imageUrl);
-                } else {
-                    favoriteado = true;
-                    fav.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.grey));
                     unmarkAsFavorite(Id);
+
+
+                } else {
+
+                    markAsFavorite(Id, Nombre, imageUrl);
+
                 }
             }
         });
     }
+
+    private void knowFavorite(String characterId) {
+
+        SharedPreferences preferences = getSharedPreferences("SESSIONS_APP_PREFS", MODE_PRIVATE);
+        String sessionToken = preferences.getString("VALID_TOKEN", null);
+
+        if (sessionToken == null) {
+            Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                host + "characters/" + characterId + "/favorite",
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            boolean isFavorite = response.getBoolean("favorite");
+                            favoriteado = isFavorite;
+                            if (isFavorite) {
+                                fav.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.yellow));
+                            } else {
+                                fav.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.grey));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Toast.makeText(PersonajesDetail.this, "Error de red", Toast.LENGTH_SHORT).show();
+                        } else {
+                            int serverCode = error.networkResponse.statusCode;
+                            if (serverCode == 401) {
+                                Toast.makeText(PersonajesDetail.this, "No autenticado", Toast.LENGTH_SHORT).show();
+                            } else if (serverCode == 404) {
+                                Toast.makeText(PersonajesDetail.this, "Personaje no encontrado", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(PersonajesDetail.this, "Error: " + serverCode, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Session-Token", sessionToken);
+                return headers;
+            }
+        };
+
+        queue.add(request);
+    }
+
+
+
 
 
     private void markAsFavorite(String characterId, String characterName, String characterImageUrl) {
@@ -144,6 +224,9 @@ public class PersonajesDetail extends AppCompatActivity  {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        favoriteado=true;
+                        fav.setColorFilter((ContextCompat.getColor(getApplicationContext(), R.color.yellow)));
+
                         Toast.makeText(PersonajesDetail.this, "Personaje marcado como favorito", Toast.LENGTH_SHORT).show();
                     }
                 },
@@ -193,6 +276,9 @@ public class PersonajesDetail extends AppCompatActivity  {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        favoriteado=false;
+                        fav.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.grey));
+
                         Toast.makeText(PersonajesDetail.this, "Personaje desmarcado como favorito", Toast.LENGTH_SHORT).show();
                     }
                 },
@@ -225,7 +311,6 @@ public class PersonajesDetail extends AppCompatActivity  {
         queue.add(request);
     }
 }
-
 
 
 

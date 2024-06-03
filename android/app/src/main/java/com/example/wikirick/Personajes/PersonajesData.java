@@ -1,5 +1,8 @@
 package com.example.wikirick.Personajes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PersonajesData {
 
 
@@ -16,11 +19,19 @@ public class PersonajesData {
     private String estado;
     private String origen;
     private String especie;
+    private ArrayList<String> episodes;
 
 
 
 
 
+    public ArrayList<String> getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(ArrayList<String> episodes) {
+        this.episodes = episodes;
+    }
     public String getNext() {
         return next;
     }
@@ -96,7 +107,7 @@ public class PersonajesData {
 
 
 
-    public PersonajesData(String id, String nombrePersonaje, String imageUrl, String next, String prev, String genero, String estado, String origen, String especie) {
+    public PersonajesData(String id, String nombrePersonaje, String imageUrl, String next, String prev, String genero, String estado, String origen, String especie, ArrayList<String> episodes) {
         this.id = id;
         this.nombrePersonaje = nombrePersonaje;
         this.imageUrl = imageUrl;
@@ -106,5 +117,6 @@ public class PersonajesData {
         this.estado = estado;
         this.origen = origen;
         this.especie = especie;
+        this.episodes = episodes;
     }
 }

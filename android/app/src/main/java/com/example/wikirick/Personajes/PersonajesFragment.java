@@ -260,7 +260,13 @@ public class PersonajesFragment extends Fragment {
                 String originName = character.getJSONObject("origin").getString("name");
                 String species = character.getString("species");
 
-                PersonajesData data = new PersonajesData(id,name, imageUrl,next, prev,gender, status, originName, species);
+                JSONArray episodesArray = character.getJSONArray("episode");
+                ArrayList<String> episodesList = new ArrayList<>();
+                for (int j = 0; j < episodesArray.length(); j++) {
+                    episodesList.add(episodesArray.getString(j));
+                }
+
+                PersonajesData data = new PersonajesData(id, name, imageUrl, next, prev, gender, status, originName, species, episodesList);
                 allCharacters.add(data);
             }
 

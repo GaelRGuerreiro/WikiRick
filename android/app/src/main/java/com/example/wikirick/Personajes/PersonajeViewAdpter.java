@@ -53,6 +53,7 @@ public class PersonajeViewAdpter extends RecyclerView.Adapter<PersonajesViewHold
                 intent.putExtra("estado",dataForThisCell.getEstado());
                 intent.putExtra("origen",dataForThisCell.getOrigen());
                 intent.putExtra("especie",dataForThisCell.getEspecie());
+                intent.putStringArrayListExtra("episodes",dataForThisCell.getEpisodes());
 
                 context.startActivity(intent);
             }
@@ -65,7 +66,6 @@ public class PersonajeViewAdpter extends RecyclerView.Adapter<PersonajesViewHold
         return personajes.size();
     }
 }
-
 
 
 
