@@ -1,6 +1,7 @@
 package com.example.wikirick.LoginRegister;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -70,6 +71,13 @@ public class RegisterActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+
+                        SharedPreferences preferences = getSharedPreferences("SESSIONS_APP_PREFS", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString("VALID_USERNAME", editTextUsername.getText().toString());
+                        editor.putString("VALID_EMAIL", editTextEmail.getText().toString());
+                        editor.apply();
+
                         Toast.makeText(RegisterActivity.this, "Usuario creado", Toast.LENGTH_LONG).show();
                         finish();
                     }

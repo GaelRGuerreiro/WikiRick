@@ -4,12 +4,15 @@ import static android.view.View.VISIBLE;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.EditText;
 
@@ -27,6 +30,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
+import com.example.wikirick.MainActivity;
 import com.example.wikirick.R;
 
 import org.json.JSONArray;
@@ -48,6 +54,8 @@ public class PersonajesFragment extends Fragment {
     private ImageButton nextButton;
     private ImageButton prevButton;
     private String busqueda;
+    public EditText campoTexto;
+    private ImageView loadingImage;
 
 
 
@@ -66,6 +74,10 @@ public class PersonajesFragment extends Fragment {
 
         prevButton = layout.findViewById(R.id.prevButton);
 
+        campoTexto = layout.findViewById(R.id.busqueda);
+        loadingImage = layout.findViewById(R.id.loadingImage);
+        DrawableImageViewTarget imageViewTarget = new DrawableImageViewTarget(loadingImage);
+        Glide.with(this).load(R.drawable.loading).into(imageViewTarget);
         lupa=layout.findViewById(R.id.lupa);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,10 +98,43 @@ public class PersonajesFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                EditText campoTexto = layout.findViewById(R.id.busqueda);
                 busqueda= campoTexto.getText().toString();
-                Log.d("Valor de búsqueda", busqueda);
                 sendSearchRequest(busqueda);
+            }
+        });
+
+        campoTexto.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                Activity activity = getActivity();
+                if(activity instanceof MainActivity){
+
+                    ((MainActivity)activity).onBackPressedCallback.setEnabled(false);
+
+                }
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.length()==0){
+                    Activity activity = getActivity();
+                    if(activity instanceof MainActivity){
+
+                        ((MainActivity)activity).onBackPressedCallback.setEnabled(false);
+
+                    }
+                }else{
+                    Activity activity = getActivity();
+                    if(activity instanceof MainActivity) {
+                        ((MainActivity) activity).onBackPressedCallback.setEnabled(true);
+                    }
+                }
             }
         });
 
@@ -150,6 +195,7 @@ public class PersonajesFragment extends Fragment {
         // Agregar la solicitud a la cola de Volley para su procesamiento.
         RequestQueue queue = Volley.newRequestQueue(activity);
         queue.add(request);
+
     }
 
 
@@ -276,4 +322,9 @@ public class PersonajesFragment extends Fragment {
             return null;
         }
     }
+
+
+
+
+
 }

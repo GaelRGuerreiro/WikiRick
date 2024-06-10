@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -32,13 +31,11 @@ public class LoginActivity extends AppCompatActivity {
     private Button iniciarSesion;
     private Context context = this;
     private RequestQueue queue;
-    private Intent intent;
     private Activity activity = this;
-    static String host ="http://10.0.2.2:8000/";
-
+    static String host = "http://10.0.2.2:8000/";
 
     @Override
-    protected void onCreate (Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         nombreUsuario = findViewById(R.id.editTextEmailLogin);
@@ -47,6 +44,16 @@ public class LoginActivity extends AppCompatActivity {
         registrarse = findViewById(R.id.buttonRegister);
         queue = Volley.newRequestQueue(this);
 
+        // Verificar si ya hay una sesión válida
+        SharedPreferences preferences = getSharedPreferences("SESSIONS_APP_PREFS", MODE_PRIVATE);
+        String validToken = preferences.getString("VALID_TOKEN", null);
+        if (validToken != null) {
+            // Si hay un token válido, redirigir al usuario a la MainActivity
+            Intent intent = new Intent(activity, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return; // Finalizar el método onCreate
+        }
 
         registrarse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,25 +61,27 @@ public class LoginActivity extends AppCompatActivity {
                 // Navegar a la pantalla de registro
                 Intent intent = new Intent(activity, RegisterActivity.class);
                 activity.startActivity(intent);
+                finish(); // Terminar la actividad actual para que no vuelva al login al presionar atrás
             }
         });
-        iniciarSesion.setOnClickListener(new View.OnClickListener(){
+
+        iniciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
                 loginUser();
             }
         });
     }
 
-    private void loginUser(){
+    private void loginUser() {
         JSONObject requestBody = new JSONObject();
-        try{
-            requestBody.put("password",password.getText().toString());
-            requestBody.put("username",nombreUsuario.getText().toString());
-
-        }catch (JSONException e){
+        try {
+            requestBody.put("password", password.getText().toString());
+            requestBody.put("username", nombreUsuario.getText().toString());
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+
         // Crear una solicitud JsonObjectRequest para iniciar sesión
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
@@ -82,56 +91,55 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         String receivedToken;
-                        try{
+                        try {
                             // Obtener el token de sesión de la respuesta JSON
                             receivedToken = response.getString("sessionToken");
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
                         // Mostrar mensajes indicando que la sesión se inició correctamente
-                        Toast.makeText(context,"Token de sesión:" + receivedToken, Toast.LENGTH_SHORT).show();
-                        Toast.makeText(context,"Iniciando sesión...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Token de sesión: " + receivedToken, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Iniciando sesión...", Toast.LENGTH_SHORT).show();
 
-                        SharedPreferences preferences = context.getSharedPreferences("SESSIONS_APP_PREFS",MODE_PRIVATE);
+                        SharedPreferences preferences = context.getSharedPreferences("SESSIONS_APP_PREFS", MODE_PRIVATE);
                         SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString("VALID_USERNAME",nombreUsuario.getText().toString());
-                        editor.putString("VALID_TOKEN",receivedToken);
+                        editor.putString("VALID_USERNAME", nombreUsuario.getText().toString());
+                        editor.putString("VALID_TOKEN", receivedToken);
                         editor.commit();
+
                         // Navegar a la actividad principal después de iniciar sesión
                         Intent intent = new Intent(activity, MainActivity.class);
                         activity.startActivity(intent);
+
+                        // Terminar la LoginActivity
+                        finish();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         if (error.networkResponse == null) {
-                            Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Error", Toast.LENGTH_SHORT).show();
                         } else {
                             int serverCode = error.networkResponse.statusCode;
                             // Manejar diferentes códigos de error del servidor
-                            if (serverCode==404){
+                            if (serverCode == 404) {
                                 Toast.makeText(context, "Usuario no válido", Toast.LENGTH_SHORT).show();
                             }
 
-                            if (serverCode==401){
+                            if (serverCode == 401) {
                                 Toast.makeText(context, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
                             }
 
-                            if (serverCode==500){
+                            if (serverCode == 500) {
                                 Toast.makeText(context, "Problemas con el servidor", Toast.LENGTH_SHORT).show();
                             }
-
                         }
                     }
-
-
                 }
-
         );
+
         // Agregar la solicitud a la cola de solicitudes
         this.queue.add(request);
     }
-
-
 }

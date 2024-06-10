@@ -1,23 +1,20 @@
 package com.example.wikirick.Episodios;
 
-import static android.view.View.VISIBLE;
-
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +24,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
+import com.example.wikirick.MainActivity;
 import com.example.wikirick.R;
 
 import org.json.JSONArray;
@@ -38,18 +38,15 @@ import java.util.List;
 
 public class EpisodiosFragment extends Fragment {
     private RecyclerView recyclerView;
-
     private Activity activity;
     private String next;
     private String prev;
-
     private ImageButton lupa;
-
     private ImageButton nextButton;
     private ImageButton prevButton;
     private String busqueda;
-
-
+    public EditText campoTexto;
+    private ImageView loadingImage;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,13 +57,13 @@ public class EpisodiosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.episodios_fragment, container, false);
 
-
         nextButton = layout.findViewById(R.id.nextButton);
-
-
         prevButton = layout.findViewById(R.id.prevButton);
-
-        lupa=layout.findViewById(R.id.lupa);
+        lupa = layout.findViewById(R.id.lupa);
+        campoTexto = layout.findViewById(R.id.busqueda);
+        loadingImage = layout.findViewById(R.id.loadingImage);
+        DrawableImageViewTarget imageViewTarget = new DrawableImageViewTarget(loadingImage);
+        Glide.with(this).load(R.drawable.loading).into(imageViewTarget);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,31 +79,50 @@ public class EpisodiosFragment extends Fragment {
         });
 
         lupa.setOnClickListener(new View.OnClickListener() {
-
-
             @Override
             public void onClick(View v) {
-                EditText campoTexto = layout.findViewById(R.id.busqueda);
-                busqueda= campoTexto.getText().toString();
-                Log.d("Valor de búsqueda", busqueda);
+                busqueda = campoTexto.getText().toString();
                 sendSearchRequest(busqueda);
             }
         });
 
-        recyclerView = layout.findViewById(R.id.episodios_recycler); // Obtener una referencia al RecyclerView desde el diseño
+        campoTexto.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (activity instanceof MainActivity) {
+                    ((MainActivity) activity).onBackPressedCallback.setEnabled(false);
+                }            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 0) {
+                    Activity activity = getActivity();
+                    if (activity instanceof MainActivity) {
+                        ((MainActivity) activity).onBackPressedCallback.setEnabled(false);
+                    }
+                } else {
+                    Activity activity = getActivity();
+                    if (activity instanceof MainActivity) {
+                        ((MainActivity) activity).onBackPressedCallback.setEnabled(true);
+                    }
+                }
+            }
+        });
+
+        recyclerView = layout.findViewById(R.id.episodios_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         sendCharacterRequest("https://rickandmortyapi.com/api/episode");
 
         return layout;
     }
 
-
-
-
-
-
-
-    public void sendCharacterRequest(String url){
+    public void sendCharacterRequest(String url) {
+        loadingImage.setVisibility(View.VISIBLE);
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
                 url,
@@ -116,24 +132,15 @@ public class EpisodiosFragment extends Fragment {
                     public void onResponse(JSONObject response) {
 
 
-
-                        // Llamar al método parseJson para parsear la respuesta JSON
-                        List<EpisodiosData> personajeDataArray = null;
-                        personajeDataArray = parseJson(response);
-
-
+                        loadingImage.setVisibility(View.GONE); // Ocultar el ImageView
+                        List<EpisodiosData> personajeDataArray = parseJson(response);
 
                         if (personajeDataArray != null) {
-
-                            // Crear un adaptador con los datos parseados y configurar el RecyclerView
                             EpisodiosViewAdapter adapter = new EpisodiosViewAdapter(personajeDataArray, activity);
                             recyclerView.setAdapter(adapter);
                             recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-
                             ajusteVisibilidadBotones();
-
                         } else {
-                            // Manejar el caso en que ocurra un error al parsear la respuesta JSON
                             Toast.makeText(activity, "Error al parsear la respuesta JSON", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -141,46 +148,34 @@ public class EpisodiosFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // Manejar los errores de la solicitud y mostrar un Toast con el mensaje de error.
+                        loadingImage.setVisibility(View.GONE); // Ocultar el ImageView
                         Toast.makeText(activity, "Error en la solicitud: " + error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
         );
 
-        // Agregar la solicitud a la cola de Volley para su procesamiento.
         RequestQueue queue = Volley.newRequestQueue(activity);
         queue.add(request);
     }
 
-
-
-    public void sendSearchRequest(String search){
+    public void sendSearchRequest(String search) {
+        loadingImage.setVisibility(View.VISIBLE); // Mostrar el ImageView
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
-                "https://rickandmortyapi.com/api/episode/?name="+search,
+                "https://rickandmortyapi.com/api/episode/?name=" + search,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
-
-
-                        // Llamar al método parseJson para parsear la respuesta JSON
-                        List<EpisodiosData> episodioDataArray = null;
-                        episodioDataArray = parseJson(response);
-
-
+                        loadingImage.setVisibility(View.GONE); // Ocultar el ImageView
+                        List<EpisodiosData> episodioDataArray = parseJson(response);
 
                         if (episodioDataArray != null) {
-
-                            // Crear un adaptador con los datos parseados y configurar el RecyclerView
-                           EpisodiosViewAdapter adapter = new EpisodiosViewAdapter(episodioDataArray, activity);
+                            EpisodiosViewAdapter adapter = new EpisodiosViewAdapter(episodioDataArray, activity);
                             recyclerView.setAdapter(adapter);
                             recyclerView.setLayoutManager(new LinearLayoutManager(activity));
                             ajusteVisibilidadBotones();
-
                         } else {
-                            // Manejar el caso en que ocurra un error al parsear la respuesta JSON
                             Toast.makeText(activity, "Error al parsear la respuesta JSON", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -188,74 +183,58 @@ public class EpisodiosFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // Manejar los errores de la solicitud y mostrar un Toast con el mensaje de error.
-                        Toast.makeText(activity, "No existen personajes con dicho nombre.",Toast.LENGTH_LONG).show();
+                        loadingImage.setVisibility(View.GONE); // Ocultar el ImageView
+                        Toast.makeText(activity, "No existen episodios con dicho nombre.", Toast.LENGTH_LONG).show();
                     }
                 }
         );
 
-        // Agregar la solicitud a la cola de Volley para su procesamiento.
         RequestQueue queue = Volley.newRequestQueue(activity);
         queue.add(request);
     }
 
-
-
-    private void ajusteVisibilidadBotones(){
-
-        if(next!=null){
+    private void ajusteVisibilidadBotones() {
+        if (next != null) {
             nextButton.setVisibility(View.VISIBLE);
-
-        }else{
+        } else {
             nextButton.setVisibility(View.INVISIBLE);
         }
 
-        if(prev!=null){
+        if (prev != null) {
             prevButton.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             prevButton.setVisibility(View.INVISIBLE);
         }
     }
 
-
-    private List<EpisodiosData> parseJson(JSONObject response)  {
+    private List<EpisodiosData> parseJson(JSONObject response) {
         try {
             next = response.getJSONObject("info").getString("next");
-
-            //According to RFC 8259 a Json value can be null. next comes as null but getString is
-            //providing us a "null" String. This is a workaround.
-
-            if (next.equals("null")){
-                next=null;
+            if (next.equals("null")) {
+                next = null;
             }
-        }catch(JSONException e){
-            next=null;
+        } catch (JSONException e) {
+            next = null;
         }
         try {
             prev = response.getJSONObject("info").getString("prev");
-
-            //According to RFC 8259 a Json value can be null. next comes as null but getString is
-            //providing us a "null" String. This is a workaround.
-
-            if(prev.equals("null")){
-                prev=null;
+            if (prev.equals("null")) {
+                prev = null;
             }
-        }catch(JSONException e){
-            prev=null;
+        } catch (JSONException e) {
+            prev = null;
         }
 
         try {
             JSONArray results = response.getJSONArray("results");
-
             List<EpisodiosData> allCharacters = new ArrayList<>();
 
             for (int i = 0; i < results.length(); i++) {
                 JSONObject character = results.getJSONObject(i);
-
                 String name = character.getString("name");
                 String airDate = character.getString("air_date");
-                String episode= character.getString("episode");
-                EpisodiosData data = new EpisodiosData(next, prev, name,airDate,episode);
+                String episode = character.getString("episode");
+                EpisodiosData data = new EpisodiosData(next, prev, name, airDate, episode);
                 allCharacters.add(data);
             }
 
