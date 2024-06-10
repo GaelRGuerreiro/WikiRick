@@ -78,6 +78,7 @@ public class PerfilFragment extends Fragment {
     }
 
     private void getProfileData() {
+        loadingImage.setVisibility(View.VISIBLE);
         String url = host + "profile";
         SharedPreferences preferences = context.getSharedPreferences("SESSIONS_APP_PREFS", Context.MODE_PRIVATE);
         String sessionToken = preferences.getString("VALID_TOKEN", null);
@@ -90,6 +91,7 @@ public class PerfilFragment extends Fragment {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
+                            loadingImage.setVisibility(View.GONE);
                             try {
                                 String username = response.getString("username");
                                 String email = response.getString("email");

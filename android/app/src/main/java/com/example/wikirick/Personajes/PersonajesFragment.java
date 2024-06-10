@@ -152,6 +152,9 @@ public class PersonajesFragment extends Fragment {
 
 
     public void sendCharacterRequest(String url){
+
+        loadingImage.setVisibility(View.VISIBLE);
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
                 url,
@@ -160,6 +163,7 @@ public class PersonajesFragment extends Fragment {
                     @Override
                     public void onResponse(JSONObject response) {
 
+                        loadingImage.setVisibility(View.GONE);
 
 
                         // Llamar al método parseJson para parsear la respuesta JSON
