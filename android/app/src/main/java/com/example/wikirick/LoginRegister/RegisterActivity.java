@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    static String host ="http://10.0.2.2:8000/";
+    static String host = "http://192.168.166.26:8000/";
 
     private EditText editTextUsername;
     private EditText editTextPassword;

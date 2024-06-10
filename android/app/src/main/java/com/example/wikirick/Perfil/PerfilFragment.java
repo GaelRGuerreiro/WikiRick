@@ -47,7 +47,7 @@ public class PerfilFragment extends Fragment {
     private ImageView loadingImage;
 
     private Context context;
-    static String host = "http://10.0.2.2:8000/";
+    static String host = "http://192.168.166.26:8000/";
 
     @Nullable
     @Override

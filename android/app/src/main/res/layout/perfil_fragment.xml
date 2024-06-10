@@ -116,6 +116,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
  />
@@ -134,7 +136,8 @@
         android:textSize="25sp"
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toTopOf="@+id/episodios_recycler"
-        app:layout_constraintStart_toStartOf="@+id/episodios_recycler" />
+        app:layout_constraintStart_toStartOf="@+id/episodios_recycler"
+        app:layout_constraintTop_toBottomOf="@+id/correo" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/episodios_recycler"

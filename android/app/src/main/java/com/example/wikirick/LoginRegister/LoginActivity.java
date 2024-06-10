@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private Context context = this;
     private RequestQueue queue;
     private Activity activity = this;
-    static String host = "http://10.0.2.2:8000/";
+    static String host = "http://192.168.166.26:8000/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,6 @@ public class LoginActivity extends AppCompatActivity {
                 // Navegar a la pantalla de registro
                 Intent intent = new Intent(activity, RegisterActivity.class);
                 activity.startActivity(intent);
-                finish(); // Terminar la actividad actual para que no vuelva al login al presionar atrás
             }
         });
 
